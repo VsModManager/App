@@ -16,8 +16,7 @@ if __name__ == '__main__':
 	from ModList import ModList
 	from TableModel import TableModel
 
-
-	modDirPath = os.getenv('APPDATA')+r"\VintagestoryData\Mods"
+	modDirPath = os.getenv('APPDATA') + r"\VintagestoryData\Mods\\"
 	serverRequestUrl = "https://traineratwot.aytour.ru/vs/get/mods"
 
 	# progress.config(mode = 'indeterminate')
@@ -48,7 +47,7 @@ if __name__ == '__main__':
 	def onStartup():
 		def modListClicked(selected, deselected):
 			index = form.modList.model().index(selected.row(), 6)
-			modList.setMod(int(index.data())-1)
+			modList.setMod(int(index.data()))
 
 		form.timer.stop()
 		modList = ModList(form, modDirPath, serverRequestUrl)
@@ -76,6 +75,7 @@ if __name__ == '__main__':
 		header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
 		header.setSectionResizeMode(6, QHeaderView.ResizeToContents)
 		form.modList.setColumnHidden(6, True)
+		form.modList.setColumnHidden(3, True)
 		#styleEnd
 
 
