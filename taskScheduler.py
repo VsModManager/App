@@ -29,5 +29,5 @@ class TaskScheduler():
 		self.form.taskCount.setText(f"<strong>To Install: </strong>{len(self.task.install)}<br><strong>To Remove: </strong>{len(self.task.remove)}")
 
 	def Apply(self):
-		.setMaximum
+		self.form.setMaximum()
 		pass
