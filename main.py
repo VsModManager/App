@@ -8,16 +8,16 @@ if __name__ == '__main__':
 	from time import sleep
 
 
-	import pandas as pd
 	from PyQt5 import uic  # QtCore, QtGui
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication, QHeaderView
 
 	from ModList import ModList
-	from TableModel import TableModel
 
 	modDirPath = os.getenv('APPDATA') + r"\VintagestoryData\Mods\\"
-	serverRequestUrl = "https://traineratwot.aytour.ru/vs/get/mods"
+	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
+
+	
 
 	# progress.config(mode = 'indeterminate')
 	# progress.start()
@@ -48,16 +48,10 @@ if __name__ == '__main__':
 		def modListClicked(selected, deselected):
 			index = form.modList.model().index(selected.row(), 6)
 			modList.setMod(int(index.data()))
-
 		form.timer.stop()
+
 		modList = ModList(form, modDirPath, serverRequestUrl)
-		data = pd.DataFrame(modList.render(), columns = ['', 'Name', 'Author', 'Downloads', 'Version', 'gameversion', ''])
-		# model = TableModel(data)
-		# model.currentRowChanged(modListClicked)
-		form.modList.setModel(TableModel(data))
-		form.modList.selectionModel().currentRowChanged.connect(modListClicked)
-		form.modList.selectRow(0)
-		# form.modList.clicked.connect(modListClicked)
+		form.comboBox.currentTextChanged.connect(modList.renderButtons)
 		form.installButton.clicked.connect(modList.installMod)
 		form.deleteButton.clicked.connect(modList.deleteMod)
 		form.updateButton.clicked.connect(modList.updateMod)

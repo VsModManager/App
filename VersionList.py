@@ -5,8 +5,11 @@ class VersionList():
 		self.versions = {}
 		self.installed = False
 		self.versionList = []
+		x = 0
 		for key in data:
 			self.versions[key] = ModVersion(data[key])
+			self.versions[key].index = x
+			x += 1
 			if latest == key:
 				self.versions[key].latest = True
 				self.latest = self.versions[key]

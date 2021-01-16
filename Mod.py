@@ -16,18 +16,11 @@ class Mod():
 
 	
 	def get(self, name, other=None):
-		print(other, name)
-		if name == "installed":
-			if isinstance(self.state['installed'], ModVersion):
+		if name in ["installed", "toInstall", "toDelete", "toUpdate"]:
+			if isinstance(self.state[name], ModVersion):
 				if other:
-					return str(self.state['installed'])
-				return self.state['installed']
-			return False
-		if name == "toInstall":
-			if isinstance(self.state['toInstall'], ModVersion):
-				if other:
-					return str(self.state['toInstall'])
-				return self.state['toInstall']
+					return str(self.state[name])
+				return self.state[name]
 			return False
 
 
