@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	modDirPath = os.getenv('APPDATA') + r"\VintagestoryData\Mods\\"
 	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
 
-	
+	dataPath = os.getenv('APPDATA') + r"\VintagestoryModManagerData\\"
 
 	# progress.config(mode = 'indeterminate')
 	# progress.start()

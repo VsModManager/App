@@ -14,7 +14,6 @@ class VersionList():
 				self.versions[key].latest = True
 				self.latest = self.versions[key]
 			self.versionList.append(key)
-		self.versionList.reverse()
 
 		for key in self.versions:
 			if self.versions[key].get('filename') in filelist:
