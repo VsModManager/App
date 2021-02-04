@@ -8,71 +8,61 @@ if __name__ == '__main__':
 	from time import sleep
 
 
-	from PyQt5 import uic  # QtCore, QtGui
+	from PyQt5 import uic, QtGui # QtCore, QtGui
 	from PyQt5.QtCore import QTimer
-	from PyQt5.QtWidgets import QApplication, QHeaderView
+	from PyQt5.QtWidgets import QApplication
+	from settings import settingsManager
 
 	from ModList import ModList
+	import logging
 
-	modDirPath = os.getenv('APPDATA') + r"\VintagestoryData\Mods\\"
+	os.remove('example.log')
+	logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARN)
+	logging.captureWarnings(True)
+
+	modDirPath = os.getenv('APPDATA') + "\\VintagestoryData\\Mods\\"
 	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
 
-	dataPath = os.getenv('APPDATA') + r"\VintagestoryModManagerData\\"
-
-	# progress.config(mode = 'indeterminate')
-	# progress.start()
-	# progress.stop()
-
-	# startUpForm, startUpWindow = uic.loadUiType("startup.ui")
-	# startUpapp = QApplication([])
-	# startUpwindow = startUpWindow()
-	# startUpform = startUpForm()
-	# startUpform.setupUi(startUpwindow)
-
-	# startUpform.timer = QTimer()
-	# startUpform.timer.start(1000)
-	# startUpform.timer.timeout.connect(onStartup)
-	# startUpwindow.show()
-	# startUpapp.exec_()
+	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
 
 	Form, Window = uic.loadUiType(".ui")
 	app = QApplication([])
 	window = Window()
+	window.setWindowIcon(QtGui.QIcon('logo.ico'))
 	form = Form()
 	form.setupUi(window)
 
+	settings = settingsManager(form, dataPath, modDirPath)
 	modList = None
 
 
 	def onStartup():
-		def modListClicked(selected, deselected):
-			index = form.modList.model().index(selected.row(), 6)
-			modList.setMod(int(index.data()))
 		form.timer.stop()
+		global modList
+		modList = ModList(form, settings, serverRequestUrl)
+		def textChanged():
+			modList.TableModel.setSearch(form.searchBox.text())
 
-		modList = ModList(form, modDirPath, serverRequestUrl)
+		form.searchBox.textChanged.connect(textChanged)
 		form.comboBox.currentTextChanged.connect(modList.renderButtons)
 		form.installButton.clicked.connect(modList.installMod)
 		form.deleteButton.clicked.connect(modList.deleteMod)
 		form.updateButton.clicked.connect(modList.updateMod)
 		form.applyButton.clicked.connect(modList.applyMods)
+		form.settingsApply.clicked.connect(settings.apply)
+		form.tabWidget.setEnabled(True)
 		form.progressBar.setValue(100)
 
 
 		#style
-		header = form.modList.horizontalHeader()
-		header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-		header.setSectionResizeMode(1, QHeaderView.Stretch)
-		header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-		header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-		header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-		header.setSectionResizeMode(5, QHeaderView.ResizeToContents)
-		header.setSectionResizeMode(6, QHeaderView.ResizeToContents)
-		form.modList.setColumnHidden(6, True)
-		form.modList.setColumnHidden(3, True)
+
+		# form.modList.setColumnHidden(3, True)
 		#styleEnd
 
 
+
+	# form.actionSettings.triggered.connect(settings.openSettingsWindow)
+	form.tabWidget.setEnabled(False)
 
 	form.timer = QTimer()
 	form.timer.start(300)
@@ -81,16 +71,35 @@ if __name__ == '__main__':
 	# form.comboBox.setEnabled(True)
 	# form.comboBox.addItem("Latest")
 	# form.comboBox.addItems(["0.0.0"])
-
+	def openSite():
+		os.system(f'start https://vs.aytour.ru/')
+	form.uploadmods.clicked.connect(openSite)
+	def openCache():
+		os.system(f'start {settings.cacheDirPath}')
+	form.cacheFolder.clicked.connect(openCache)
 
 	#style
 	form.modDesc.setStyleSheet("background-color: #F0F0F0;")
-	modInfo = f"<strong>Author: <strong><br>"
-	modInfo += f"<strong>Downloads: <strong><br>"
-	modInfo += f"<strong>Views: <strong><br>"
-	form.modInfo.setText(modInfo)
+	form.modInfo.setStyleSheet("background-color: #F0F0F0;")
+	form.color.setStyleSheet("background-color: #F0F0F0;")
+	form.color2.setStyleSheet("background-color: #F0F0F0;")
 	#styleEnd
 
 
 	window.show()
-	app.exec_()
+	x = True
+	# x = False
+	if x:
+		import pstats
+		from pstats import SortKey
+		import cProfile
+		cProfile.run('app.exec_()', 'restats')
+		pstats.Stats('restats').strip_dirs().sort_stats("cumtime").print_stats(20)
+		sleep(3)
+	else:
+		app.exec_()
+	
+	modList.clearCache()
+	for file in os.listdir(settings.imageDirPath):
+		if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):
+			os.remove(settings.imageDirPath + file)

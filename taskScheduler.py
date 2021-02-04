@@ -1,18 +1,20 @@
 import requests
 import asyncio
 import os
+import shutil
+
 
 class TaskScheduler():
-	def __init__(self, form, moddir):
+	def __init__(self, form, settings):
+		self.settings = settings
 		self.form = form
-		self.moddir = moddir
 		self.task = {}
 		self.task['install'] = []
 		self.task['remove'] = []
 		self.updateCount()
 		pass
 
-	def installMod(self, mod, version = None):
+	def installMod(self, mod, version=None):
 		if isinstance(mod, tuple):
 			mod, version = mod
 		if not mod.state['toInstall']:
@@ -25,7 +27,7 @@ class TaskScheduler():
 				self.task['install'].remove(task)
 		self.updateCount()
 
-	def deleteMod(self, mod, version = None):
+	def deleteMod(self, mod, version=None):
 		if isinstance(mod, tuple):
 			mod, version = mod
 		version = mod.get("installed")
@@ -39,7 +41,7 @@ class TaskScheduler():
 				self.task['remove'].remove(task)
 		self.updateCount()
 
-	def updateMod(self, mod, version = None):
+	def updateMod(self, mod, version=None):
 		if isinstance(mod, tuple):
 			mod, version = mod
 		if not mod.state['toUpdate']:
@@ -69,23 +71,28 @@ class TaskScheduler():
 
 	def Apply(self, modList):
 		maxValue = len(self.task["install"]) * 10 + len(self.task['remove']) * 1
+
 		async def apply():
 			currentValue = 0
 			self.form.progressBar.setValue(0)
 			for key in self.task["remove"]:
 				mod, version = key
-				if os.path.exists(self.moddir + version.data['filename']):
-					os.remove(self.moddir + version.data['filename'])
+				if os.path.exists(self.settings.get("modDirPath") + version.data['filename']):
+					os.remove(self.settings.get("modDirPath") + version.data['filename'])
 				mod.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": False}
 				currentValue += 1
 				self.form.progressBar.setValue(currentValue / maxValue * 100)
 			self.task["remove"] = []
 			for key in self.task["install"]:
 				mod, version = key
-				url = version.data['downloadLink']
-				response = requests.get(
-					url, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=True)
-				open(self.moddir + version.data['filename'], 'wb').write(response.content)
+				if os.path.isfile(self.settings.get("cacheDirPath") + version.data['filename']):
+					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'], self.settings.get("modDirPath"))
+				else:
+					url = version.data['downloadLink']
+					response = requests.get(
+						url, headers={}, allow_redirects=True, verify=False)
+					open(self.settings.get("cacheDirPath") + version.data['filename'], 'wb').write(response.content)
+					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'], self.settings.get("modDirPath"))
 				mod.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": version}
 				currentValue += 10
 				self.form.progressBar.setValue(currentValue / maxValue * 100)

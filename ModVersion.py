@@ -5,8 +5,8 @@ class ModVersion():
 	
 	def compare(self, version = False):
 		if not version: return 0
-		if self.index > version.index: return 1
-		if self.index < version.index: return -1
+		if self.index > version.index: return -1
+		if self.index < version.index: return 1
 		return 0
 	def __str__(self):
 		return self.data['version']

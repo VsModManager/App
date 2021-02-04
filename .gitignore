@@ -6,8 +6,15 @@
 /modNameChache.json
 /startup.py
 /startup.ui
-/toexe.py
 /window.py
 /__pycache__
 Mod.zip
 taskScheduler.zip
+/.vscode
+start.bat
+favicon.ico
+example.log
+logo.png
+perfomance.py
+settings.ui
+restats

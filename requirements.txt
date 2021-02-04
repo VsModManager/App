@@ -1,9 +1,4 @@
-os
-time
-json
-numpy
 asyncio
 requests
 hashlib
-pandas
 PyQt5

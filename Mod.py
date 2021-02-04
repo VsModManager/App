@@ -14,7 +14,7 @@ class Mod():
 	def __str__(self):
 		return self.data['name']
 
-	
+
 	def get(self, name, other=None):
 		if name in ["installed", "toInstall", "toDelete", "toUpdate"]:
 			if isinstance(self.state[name], ModVersion):
@@ -22,8 +22,28 @@ class Mod():
 					return str(self.state[name])
 				return self.state[name]
 			return False
+		
+		if name == "raiting":
+			if self.data["raiting"]:
+				if self.data["raiting"]["rating"]:
+					return self.data["raiting"]["rating"]+"%"
+			if other == True:
+				return False
+			return "Unknown%"
 
-
+		if name == "tags":
+			return ", ".join(self.data["tags"])
+		if name == "img":
+			if self.data["img"]:
+				return self.data["img"]
+			else:
+				return False
+		if name == "shotDescription":
+			if self.data["descriptions"][other] != None: return self.data["descriptions"][other]['shotDescription']
+			return self.data["descriptions"]['en']['shotDescription']
+		if name == "description":
+			if self.data["descriptions"][other] != None: return self.data["descriptions"][other]['description']
+			return self.data["descriptions"]['en']['description']
 		if name == "author":
 			if self.data["authors"] == None or len(self.data["authors"]) == 0: return "Unknown"
 			return self.data["authors"][0]
@@ -46,11 +66,12 @@ class Mod():
 		installed = self.state['installed'] and True or False
 		name = str(self)
 		author = self.formatString(self.get("author"), 14)
-		downloads = "Null" #self.data['downloads']
+		downloads = self.data['downloads'] or "----"
 		version = str(self.getLastVersion())
 		gameVersion = self.getVersion(version).get('gameVersion') or "Unknown"
+		raiting = self.get("raiting", True) or "--.--%"
 		id = self.data['id']
-		return [installed, name, author, downloads, version, gameVersion, id]
+		return [installed, name, author, raiting, downloads, version, gameVersion, id]
 
 	def formatString(self, string, limit):
 		try:
