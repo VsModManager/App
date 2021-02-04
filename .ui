@@ -660,9 +660,26 @@
      <string>Upload mods here</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="newVersion">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1034</x>
+      <y>0</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
    <zorder>tabWidget</zorder>
    <zorder>progressBar</zorder>
    <zorder>uploadmods</zorder>
+   <zorder>newVersion</zorder>
   </widget>
   <action name="actionss">
    <property name="text">

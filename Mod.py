@@ -2,12 +2,12 @@ from VersionList import VersionList
 from ModVersion import ModVersion
 
 class Mod():
-	def __init__(self, data, filelist):
-			self.data = data
-			self.data['versions'] = VersionList(self.data['versions'], self.data['lastVersion'], filelist)
-			self.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": self.data['versions'].installed}
-			self.versionList = self.data['versions']
-			self.versions = self.versionList.get("VersionList")
+	def __init__(self, data, filelist, local = False):
+		self.data = data
+		self.data['versions'] = VersionList(self.data['versions'], self.data['lastVersion'], filelist)
+		self.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": self.data['versions'].installed}
+		self.versionList = self.data['versions']
+		self.versions = self.versionList.get("VersionList")
 			
 	# def __getattr__(self, name):
 	# 	return self.get(name)
@@ -54,6 +54,11 @@ class Mod():
 		if name in self.data and self.data[name] != None:
 			return self.data[name]
 		return other
+
+	def hasFile(self, name):
+		if name in self.versionList.get("allFiles"):
+			return True
+		return False
 
 	def getVersion(self, version = None):
 		if not version is None: return self.versionList.getVersion(version)

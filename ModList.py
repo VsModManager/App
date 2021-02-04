@@ -39,12 +39,12 @@ class ModList():
 		self.updateModList()
 		self.defaultMod = self.mods[0]
 		self.selectedMod = self.defaultMod
+		self._local = False
 		sleep(0.05)
 		form.progressBar.setValue(100)
 
 	def updateModList(self):
 		self.TableModel.setNewData(self.renderList())
-		print("updateModList")
 		self.form.modList.setModel(self.TableModel)
 
 	def compareHash(self, progressBar):
@@ -53,7 +53,7 @@ class ModList():
 		})
 		if response.status_code == 200:
 			self.settings.local = False
-			if json.loads(response.text)['success'] or True:
+			if json.loads(response.text)['success']:
 				sleep(0.05)
 				progressBar.setValue(40)
 				sleep(0.05)
@@ -102,9 +102,11 @@ class ModList():
 		for mod in self.rawData:
 			self.mods.append(Mod(mod, installed))
 
+
 		def modListClicked(selected, deselected):
-			index = self.form.modList.model().index(selected.row(), 7)
-			self.setMod(int(index.data()))
+			index = self.form.modList.model().index(selected.row(), self.TableModel.columnCount()-1)
+			# print(index.data())
+			self.setMod(index.data())
 		self.TableModel = TableModel(self.form.modList, self.renderList(
 		), ['', 'Name', 'Author', 'Raiting', 'Downloads', 'Version', 'gameversion', ''])
 		self.form.modList.setModel(self.TableModel)
@@ -121,7 +123,20 @@ class ModList():
 	def renderList(self):
 		renderList = []
 		for mod in self.mods:
-			renderList.append(mod.render())
+			if mod.get("published") == 1:
+				renderList.append(mod.render())
+
+		localMods = []
+		_, _, installed = next(os.walk(self.moddir))
+		for name in installed:
+			x = True
+			for mod in self.mods:
+				if x and mod.hasFile(name):
+					x = False
+			if x:
+				localMods.append(name)
+		for mod in localMods:
+				renderList.append([True, f"_{mod}", '"Local"', "", "", "", "", f"Local?{mod}"])
 		return renderList
 
 	def getByID(self, id):
@@ -131,17 +146,28 @@ class ModList():
 		return self.defaultMod
 
 	def setMod(self, id=False):
-		if not isinstance(id, bool):
-			self.selectedMod = self.getByID(id)
+		if not isinstance(id, bool) and not id.startswith("Local?"):
+			self._local = False
+			self.selectedMod = self.getByID(int(id))
 			self.form.comboBox.clear()
 			self.form.comboBox.addItem("Latest")
 			self.form.comboBox.addItems(self.selectedMod.versions)
 			asyncio.run(self.render())
-			# self.render()
 
+		if not isinstance(id, bool) and id.startswith("Local?"):
+			self._local = True
+			self.renderLocalMod(id.split("?")[1])
 		self.renderButtons()
-		# self.form.<img src="">
-		# Installed
+
+	def renderLocalMod(self, mod):
+		self.form.modName.setText(mod)
+		self.form.modDesc.setText("")
+		self.form.modInfo.setText("")
+		self.form.image.setText(" ")
+		self.form.deleteText.setText(f"<strong>Installed: </strong>{mod}<br><strong>Cannot be restored after uninstall")
+		self.form.comboBox.clear()
+
+		pass
 
 	async def render(self):
 		self.form.modName.setText(self.selectedMod.get('name', 'Unknown'))
@@ -149,7 +175,7 @@ class ModList():
 		def getLine(x, y):
 			return f"<strong>{x}: </strong>{y}<br>"
 		modInfo = ""
-		modInfo += getLine("Author", self.selectedMod.get('authors', 'Unknown'))
+		modInfo += getLine(f"Author{len(self.selectedMod.data['authors']) != 1 and 's' or ''}", self.selectedMod.get('authors', 'Unknown'))
 		modInfo += getLine("Downloads", self.selectedMod.get('downloads', 'Unknown'))
 		modInfo += getLine("Raiting", self.selectedMod.get('raiting', 'Unknown'))
 		modInfo += getLine("Tags", self.selectedMod.get('tags'))
@@ -159,7 +185,7 @@ class ModList():
 		# modInfo += f"<strong>Views: </strong>{self.selectedMod.get('views', 'Unknown')}<br>"
 		self.form.modInfo.setText(modInfo)
 		if self.selectedMod.get("img") == False:
-			self.form.image.setText("")
+			self.form.image.setText(" ")
 		else:
 			imageFile = self.settings.get("imageDirPath") + "m" + str(self.selectedMod.get('id'))
 			if not os.path.isfile(imageFile):
@@ -175,81 +201,96 @@ class ModList():
 			self.form.image.setPixmap(pixmap)
 
 	def renderButtons(self):
-		_, selected = self.selectMod()
-		version = self.selectedMod.get('installed')
-		toBeInstalled = self.selectedMod.get('toInstall')
-		toBeRemoved = self.selectedMod.get('toDelete')
-		toBeUpdated = self.selectedMod.get('toUpdate')
-		update = (toBeUpdated or selected).compare(version)
-		latest = ""
-		latestV = ""
-
-		if toBeInstalled:
-			self.form.installButton.setText("Cancel")
-			self.form.installButton.setEnabled(True)
-		elif version:
+		if self._local:
+			self.form.comboBox.setEnabled(False)
 			self.form.installButton.setText("Install")
 			self.form.installButton.setEnabled(False)
-		else:
-			self.form.installButton.setText("Install")
-			self.form.installButton.setEnabled(True)
 
-		if toBeRemoved:
-			self.form.deleteButton.setText("Cancel")
-			self.form.deleteButton.setEnabled(True)
-		elif version:
-			self.form.deleteButton.setText("Uninstall")
-			self.form.deleteButton.setEnabled(True)
-		else:
-			self.form.deleteButton.setText("Uninstall")
-			self.form.deleteButton.setEnabled(False)
+			if self.form.modName.text() in self.TaskScheduler.task['remove']:
+				self.form.deleteButton.setText("Cancel")
+				self.form.deleteButton.setEnabled(True)
+			else:
+				self.form.deleteButton.setText("Uninstall")
+				self.form.deleteButton.setEnabled(True)
 
-		if not toBeUpdated and (not version or update == 0):
 			self.form.updateButton.setText('Upgrade')
 			self.form.updateButton.setEnabled(False)
-		elif toBeUpdated:
-			self.form.updateButton.setText('Cancel')
-			self.form.updateButton.setEnabled(True)
-		elif toBeRemoved or toBeInstalled:
-			self.form.updateButton.setText(update == -1 and 'Downgrade' or 'Upgrade')
-			self.form.updateButton.setEnabled(False)
 		else:
-			self.form.updateButton.setText(update == -1 and 'Downgrade' or 'Upgrade')
-			self.form.updateButton.setEnabled(True)
+			_, selected = self.selectMod()
+			version = self.selectedMod.get('installed')
+			toBeInstalled = self.selectedMod.get('toInstall')
+			toBeRemoved = self.selectedMod.get('toDelete')
+			toBeUpdated = self.selectedMod.get('toUpdate')
+			update = (toBeUpdated or selected).compare(version)
+			latest = ""
+			latestV = ""
 
-		if self.settings.local:
-			self.form.updateButton.setEnabled(False)
-			self.form.installButton.setEnabled(False)
+			if toBeInstalled:
+				self.form.installButton.setText("Cancel")
+				self.form.installButton.setEnabled(True)
+			elif version:
+				self.form.installButton.setText("Install")
+				self.form.installButton.setEnabled(False)
+			else:
+				self.form.installButton.setText("Install")
+				self.form.installButton.setEnabled(True)
 
-		if version:
-			latest = version.latest and "(Latest)"
-		if toBeInstalled or toBeUpdated:
-			latestV = (toBeInstalled or toBeUpdated).latest and "(Latest)"
+			if toBeRemoved:
+				self.form.deleteButton.setText("Cancel")
+				self.form.deleteButton.setEnabled(True)
+			elif version:
+				self.form.deleteButton.setText("Uninstall")
+				self.form.deleteButton.setEnabled(True)
+			else:
+				self.form.deleteButton.setText("Uninstall")
+				self.form.deleteButton.setEnabled(False)
 
-		text = f"<strong>Installed: </strong>{version or 'None'} {version and latest or ''}<br>"
+			if not toBeUpdated and (not version or update == 0):
+				self.form.updateButton.setText('Upgrade')
+				self.form.updateButton.setEnabled(False)
+			elif toBeUpdated:
+				self.form.updateButton.setText('Cancel')
+				self.form.updateButton.setEnabled(True)
+			elif toBeRemoved or toBeInstalled:
+				self.form.updateButton.setText(update == -1 and 'Downgrade' or 'Upgrade')
+				self.form.updateButton.setEnabled(False)
+			else:
+				self.form.updateButton.setText(update == -1 and 'Downgrade' or 'Upgrade')
+				self.form.updateButton.setEnabled(True)
 
-		if self.settings.local:
-			text += "unable connect to server"
-		elif not (toBeInstalled or toBeRemoved or toBeUpdated):
-			text += " "
-		elif toBeUpdated:
-			text += f"<strong>{update==-1 and 'Downgrade' or 'Upgrade'} To: </strong>{toBeUpdated} {latestV or ''}"
-		else:
-			text += f"<strong>To be {toBeRemoved and 'removed' or 'installed'}: </strong>{toBeInstalled or toBeRemoved} {toBeInstalled and latest or ''}"
+			if self.settings.local:
+				self.form.updateButton.setEnabled(False)
+				self.form.installButton.setEnabled(False)
 
-		# 	self.form.deleteButton.setEnabled(True)
-		# else:
-		# 	self.form.deleteButton.setEnabled(False)
+			if version:
+				latest = version.latest and "(Latest)"
+			if toBeInstalled or toBeUpdated:
+				latestV = (toBeInstalled or toBeUpdated).latest and "(Latest)"
 
-		# if version == toBeInstalled:
-		# 	self.form.installButton.setText("Cancel")
-		# else:
-		# 	self.form.installButton.setText("Install")
-		# if version != toBeInstalled and version and toBeInstalled:
+			text = f"<strong>Installed: </strong>{version or 'None'} {version and latest or ''}<br>"
 
-		self.form.deleteText.setText(text)
+			if self.settings.local:
+				text += "unable connect to server"
+			elif not (toBeInstalled or toBeRemoved or toBeUpdated):
+				text += " "
+			elif toBeUpdated:
+				text += f"<strong>{update==-1 and 'Downgrade' or 'Upgrade'} To: </strong>{toBeUpdated} {latestV or ''}"
+			else:
+				text += f"<strong>To be {toBeRemoved and 'removed' or 'installed'}: </strong>{toBeInstalled or toBeRemoved} {toBeInstalled and latest or ''}"
 
-		self.form.comboBox.setEnabled(True)
+			# 	self.form.deleteButton.setEnabled(True)
+			# else:
+			# 	self.form.deleteButton.setEnabled(False)
+
+			# if version == toBeInstalled:
+			# 	self.form.installButton.setText("Cancel")
+			# else:
+			# 	self.form.installButton.setText("Install")
+			# if version != toBeInstalled and version and toBeInstalled:
+
+			self.form.deleteText.setText(text)
+
+			self.form.comboBox.setEnabled(True)
 
 	def selectMod(self):
 		select = self.form.comboBox.currentIndex()
@@ -265,7 +306,10 @@ class ModList():
 		self.setMod()
 
 	def deleteMod(self):
-		self.TaskScheduler.deleteMod(self.selectMod())
+		if self._local:
+			self.TaskScheduler.deleteLocalMod(self.form.modName.text())
+		else:
+			self.TaskScheduler.deleteMod(self.selectMod())
 		self.setMod()
 
 	def updateMod(self):
