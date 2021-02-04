@@ -41,6 +41,13 @@ class TaskScheduler():
 				self.task['remove'].remove(task)
 		self.updateCount()
 
+	def deleteLocalMod(self, file):
+		if not file in self.task['remove']:
+			self.task['remove'].append(file)
+		else:
+			self.task['remove'].remove(file)
+		self.updateCount()
+
 	def updateMod(self, mod, version=None):
 		if isinstance(mod, tuple):
 			mod, version = mod
@@ -76,12 +83,16 @@ class TaskScheduler():
 			currentValue = 0
 			self.form.progressBar.setValue(0)
 			for key in self.task["remove"]:
-				mod, version = key
-				if os.path.exists(self.settings.get("modDirPath") + version.data['filename']):
-					os.remove(self.settings.get("modDirPath") + version.data['filename'])
-				mod.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": False}
-				currentValue += 1
-				self.form.progressBar.setValue(currentValue / maxValue * 100)
+				if isinstance(key, str):
+					if os.path.exists(self.settings.get("modDirPath") + key):
+						os.remove(self.settings.get("modDirPath") + key)
+				else:
+					mod, version = key
+					if os.path.exists(self.settings.get("modDirPath") + version.data['filename']):
+						os.remove(self.settings.get("modDirPath") + version.data['filename'])
+					mod.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": False}
+					currentValue += 1
+					self.form.progressBar.setValue(currentValue / maxValue * 100)
 			self.task["remove"] = []
 			for key in self.task["install"]:
 				mod, version = key

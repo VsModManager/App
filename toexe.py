@@ -6,20 +6,12 @@ import shutil
 base = 'Win32GUI'
 
 executables = [Executable("main.py", base=base,
-						  target_name="VintageModManager.exe", icon="favicon.ico")]
+						  target_name="VintageModManager.exe", icon="logo.ico")]
 
 
-include_files = [".ui", "cross.png", "tick.png"]
+include_files = [".ui", "cross.png", "tick.png", "logo.ico"]
 
-includes = [
-	"os",
-	"time",
-	"json",
-	"asyncio",
-	"requests",
-	"hashlib",
-	"PyQt5",
-]
+
 zip_include_packages = []
 
 options = {
@@ -35,7 +27,7 @@ if os.path.isdir(r".\build\exe.win-amd64-3.9"):
 setup(
 	name='main',
 	options=options,
-	version="0.0.1",
+	version="0.1.0",
 	description='<any description>',
 	executables=executables
 )

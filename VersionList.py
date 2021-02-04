@@ -27,6 +27,11 @@ class VersionList():
 			return self.latest
 		if value == "VersionList":
 			return self.versionList
+		if value == "allFiles":
+			files = []
+			for key in self.versions:
+				files.append(self.versions[key].get('filename'))
+			return files
 
 	def getVersion(self, version):
 		return self.versions[version]

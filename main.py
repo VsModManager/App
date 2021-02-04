@@ -5,6 +5,7 @@ if __name__ == '__main__':
 	# import requests
 	# import numpy as np
 	import os
+	import asyncio
 	from time import sleep
 
 
@@ -14,14 +15,18 @@ if __name__ == '__main__':
 	from settings import settingsManager
 
 	from ModList import ModList
-	import logging
+	# import logging
+	import requests
 
-	os.remove('example.log')
-	logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARN)
-	logging.captureWarnings(True)
+	# os.remove('example.log')
+	# logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARN)
+	# logging.captureWarnings(True)
 
 	modDirPath = os.getenv('APPDATA') + "\\VintagestoryData\\Mods\\"
 	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
+	updateCheckUrl = "https://archive.aytour.ru/vs/app/check"
+	version = "0.1.0-rc1"
+	versionId = 1
 
 	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
 
@@ -77,27 +82,41 @@ if __name__ == '__main__':
 	def openCache():
 		os.system(f'start {settings.cacheDirPath}')
 	form.cacheFolder.clicked.connect(openCache)
+	def openDownload():
+		os.system(f'start https://vs.aytour.ru/download')
+	form.newVersion.clicked.connect(openDownload)
+
+	async def versionCheck():
+		response = requests.request("GET", updateCheckUrl, verify=False)
+		if response.ok:
+			if versionId >= int(response.text.split(":")[1]):
+				form.newVersion.setText(version)
+			else:
+				form.newVersion.setText("New Version Available")
+				form.newVersion.setEnabled(True)
+	asyncio.run(versionCheck())
 
 	#style
-	form.modDesc.setStyleSheet("background-color: #F0F0F0;")
-	form.modInfo.setStyleSheet("background-color: #F0F0F0;")
-	form.color.setStyleSheet("background-color: #F0F0F0;")
-	form.color2.setStyleSheet("background-color: #F0F0F0;")
+	style = "background-color: #E0E0E0;"
+	form.modDesc.setStyleSheet(style)
+	form.modInfo.setStyleSheet(style)
+	form.color.setStyleSheet(style)
+	form.color2.setStyleSheet(style)
 	#styleEnd
 
 
 	window.show()
-	x = True
+	# x = True
 	# x = False
-	if x:
-		import pstats
-		from pstats import SortKey
-		import cProfile
-		cProfile.run('app.exec_()', 'restats')
-		pstats.Stats('restats').strip_dirs().sort_stats("cumtime").print_stats(20)
-		sleep(3)
-	else:
-		app.exec_()
+	# if x:
+	# 	import pstats
+	# 	from pstats import SortKey
+	# 	import cProfile
+	# 	cProfile.run('app.exec_()', 'restats')
+	# 	pstats.Stats('restats').strip_dirs().sort_stats("cumtime").print_stats(20)
+	# 	sleep(3)
+	# else:
+	app.exec_()
 	
 	modList.clearCache()
 	for file in os.listdir(settings.imageDirPath):

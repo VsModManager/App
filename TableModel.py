@@ -22,13 +22,14 @@ class TableModel(QtCore.QAbstractTableModel):
 					# return QtGui.QIcon('cross.png')
 
 		def data(self, index, role):
+
 			if role == Qt.DisplayRole:
 				value = self._data[index.row()][index.column()]
 				if isinstance(value, bool):
 					return
 				return str(value)
 
-			if role == Qt.DecorationRole:
+			elif role == Qt.DecorationRole:
 				value = self._data[index.row()][index.column()]
 				
 				if isinstance(value, bool):
@@ -36,7 +37,7 @@ class TableModel(QtCore.QAbstractTableModel):
 						return self.icons["tick"]
 					return self.icons["cross"]
 
-			if role == Qt.TextAlignmentRole:
+			elif role == Qt.TextAlignmentRole:
 				# value = self._data[index.row()][index.column()]
 				if self._header[index.column()] == "Downloads":
 					return Qt.AlignVCenter + Qt.AlignRight
@@ -44,10 +45,10 @@ class TableModel(QtCore.QAbstractTableModel):
 					return Qt.AlignVCenter + Qt.AlignHCenter
 				return Qt.AlignVCenter
 
-		def rowCount(self, index):
+		def rowCount(self, index=0):
 			return len(self._data)
 
-		def columnCount(self, index):
+		def columnCount(self, index=0):
 			return len(self._data[0])
 
 		def headerData(self, section, orientation, role):
