@@ -29,7 +29,7 @@ class lang:
 			os.makedirs(self.cachePath)
 		self.cachePath = Path(self.cachePath + self.filename)
 		if self.cachePath.is_file():
-			self.dict = json.loads(self.cachePath.read_text(), encoding='utf-8')
+			self.dict = json.loads(self.cachePath.read_text(encoding='utf-8'))
 			pass
 		else:
 			self.createCache()
