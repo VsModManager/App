@@ -10,6 +10,7 @@ if __name__ == '__main__':
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication
 	from settings import settingsManager
+	import Poedit
 
 	from ModList import ModList
 	# import logging
@@ -26,6 +27,10 @@ if __name__ == '__main__':
 	versionId = 1
 
 	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
+
+	lang = Poedit.lang('f7712fd43da0c33880d64b13d3352784', 407521)
+	lang.cachePath = dataPath + '\\lang\\'
+	lang.initialize()
 
 	Form, Window = uic.loadUiType(".ui")
 	app = QApplication([])
