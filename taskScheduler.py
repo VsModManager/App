@@ -97,13 +97,15 @@ class TaskScheduler():
 			for key in self.task["install"]:
 				mod, version = key
 				if os.path.isfile(self.settings.get("cacheDirPath") + version.data['filename']):
-					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'], self.settings.get("modDirPath"))
+					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'],
+								self.settings.get("modDirPath"))
 				else:
 					url = version.data['downloadLink']
 					response = requests.get(
 						url, headers={}, allow_redirects=True, verify=False)
 					open(self.settings.get("cacheDirPath") + version.data['filename'], 'wb').write(response.content)
-					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'], self.settings.get("modDirPath"))
+					shutil.copy(self.settings.get("cacheDirPath") + version.data['filename'],
+								self.settings.get("modDirPath"))
 				mod.state = {"toInstall": False, "toDelete": False, "toUpdate": False, "installed": version}
 				currentValue += 10
 				self.form.progressBar.setValue(currentValue / maxValue * 100)
@@ -112,4 +114,5 @@ class TaskScheduler():
 			modList.updateModList()
 			self.form.modList.setEnabled(True)
 			modList.setMod()
+
 		asyncio.run(apply())
