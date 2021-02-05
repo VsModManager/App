@@ -19,14 +19,14 @@ class settingsManager():
 			os.mkdir(self.imageDirPath)
 
 		baseDict = {
-				"disableCache": False,
-				"saveCache": 30,
-				"language": "en",
-			}
+			"disableCache": False,
+			"saveCache": 30,
+			"language": "en",
+		}
 
 		if os.path.exists(self.settingsFile):
 			self.data = json.load(open(self.settingsFile, "r"))
-			self.data = baseDict | self.data
+			self.data = {**baseDict, **self.data}
 			json.dump(self.data, open(self.settingsFile, 'w'))
 		else:
 			self.data = baseDict
