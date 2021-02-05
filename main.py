@@ -1,4 +1,3 @@
-
 if __name__ == '__main__':
 	# import hashlib
 	# import json
@@ -6,10 +5,8 @@ if __name__ == '__main__':
 	# import numpy as np
 	import os
 	import asyncio
-	from time import sleep
 
-
-	from PyQt5 import uic, QtGui # QtCore, QtGui
+	from PyQt5 import uic, QtGui  # QtCore, QtGui
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication
 	from settings import settingsManager
@@ -45,6 +42,7 @@ if __name__ == '__main__':
 		form.timer.stop()
 		global modList
 		modList = ModList(form, settings, serverRequestUrl)
+
 		def textChanged():
 			modList.TableModel.setSearch(form.searchBox.text())
 
@@ -59,12 +57,10 @@ if __name__ == '__main__':
 		form.progressBar.setValue(100)
 
 
-		#style
+	# style
 
-		# form.modList.setColumnHidden(3, True)
-		#styleEnd
-
-
+	# form.modList.setColumnHidden(3, True)
+	# styleEnd
 
 	# form.actionSettings.triggered.connect(settings.openSettingsWindow)
 	form.tabWidget.setEnabled(False)
@@ -73,18 +69,31 @@ if __name__ == '__main__':
 	form.timer.start(300)
 	form.timer.timeout.connect(onStartup)
 	form.progressBar.setValue(10)
+
+
 	# form.comboBox.setEnabled(True)
 	# form.comboBox.addItem("Latest")
 	# form.comboBox.addItems(["0.0.0"])
 	def openSite():
 		os.system(f'start https://vs.aytour.ru/')
+
+
 	form.uploadmods.clicked.connect(openSite)
+
+
 	def openCache():
 		os.system(f'start {settings.cacheDirPath}')
+
+
 	form.cacheFolder.clicked.connect(openCache)
+
+
 	def openDownload():
 		os.system(f'start https://vs.aytour.ru/download')
+
+
 	form.newVersion.clicked.connect(openDownload)
+
 
 	async def versionCheck():
 		response = requests.request("GET", updateCheckUrl, verify=False)
@@ -94,16 +103,17 @@ if __name__ == '__main__':
 			else:
 				form.newVersion.setText("New Version Available")
 				form.newVersion.setEnabled(True)
+
+
 	asyncio.run(versionCheck())
 
-	#style
+	# style
 	style = "background-color: #E0E0E0;"
 	form.modDesc.setStyleSheet(style)
 	form.modInfo.setStyleSheet(style)
 	form.color.setStyleSheet(style)
 	form.color2.setStyleSheet(style)
-	#styleEnd
-
+	# styleEnd
 
 	window.show()
 	# x = True
@@ -117,7 +127,7 @@ if __name__ == '__main__':
 	# 	sleep(3)
 	# else:
 	app.exec_()
-	
+
 	modList.clearCache()
 	for file in os.listdir(settings.imageDirPath):
 		if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):

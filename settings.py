@@ -1,10 +1,8 @@
-import os
 import json
-from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication
+import os
 
 
-class settingsManager():
+class settingsManager:
 	def __init__(self, form, dataPath, modDirPath):
 		self.modListDataFile = dataPath + 'modListData.json'
 		self.dataPath = dataPath
@@ -14,9 +12,9 @@ class settingsManager():
 		self.settingsFile = self.dataPath + "settings.json"
 		self.form = form
 		if not os.path.isdir(self.dataPath):
-			os.mkdir(self.dataPath)
+			os.makedirs(self.dataPath)
 		if not os.path.isdir(self.imageDirPath):
-			os.mkdir(self.imageDirPath)
+			os.makedirs(self.imageDirPath)
 
 		baseDict = {
 			"disableCache": False,
@@ -33,7 +31,7 @@ class settingsManager():
 			json.dump(self.data, open(self.settingsFile, 'w'))
 
 		if not os.path.isdir(self.cacheDirPath):
-			os.mkdir(self.cacheDirPath)
+			os.makedirs(self.cacheDirPath)
 		self.form.disableCache.setChecked(self.data["disableCache"])
 		self.form.cacheDays.setValue(self.data["saveCache"])
 
