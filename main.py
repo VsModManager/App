@@ -1,4 +1,3 @@
-
 if __name__ == '__main__':
 	# import hashlib
 	# import json
@@ -6,17 +5,17 @@ if __name__ == '__main__':
 	# import numpy as np
 	import os
 	import asyncio
-	from time import sleep
 
-
-	from PyQt5 import uic, QtGui # QtCore, QtGui
+	from PyQt5 import uic, QtGui  # QtCore, QtGui
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication
 	from settings import settingsManager
+	# import Poedit
 
 	from ModList import ModList
 	# import logging
 	import requests
+	requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 	# os.remove('example.log')
 	# logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARN)
@@ -25,10 +24,14 @@ if __name__ == '__main__':
 	modDirPath = os.getenv('APPDATA') + "\\VintagestoryData\\Mods\\"
 	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
 	updateCheckUrl = "https://archive.aytour.ru/vs/app/check"
-	version = "0.1.0-rc1"
-	versionId = 1
+	version = "0.1.0"
+	versionId = 2
 
 	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
+
+	# lang = Poedit.lang('f7712fd43da0c33880d64b13d3352784', 407521)
+	# lang.cachePath = dataPath + '\\lang\\'
+	# lang.initialize()
 
 	Form, Window = uic.loadUiType(".ui")
 	app = QApplication([])
@@ -38,13 +41,14 @@ if __name__ == '__main__':
 	form.setupUi(window)
 
 	settings = settingsManager(form, dataPath, modDirPath)
+	settings.version = [version, versionId]
 	modList = None
-
 
 	def onStartup():
 		form.timer.stop()
 		global modList
 		modList = ModList(form, settings, serverRequestUrl)
+
 		def textChanged():
 			modList.TableModel.setSearch(form.searchBox.text())
 
@@ -58,13 +62,10 @@ if __name__ == '__main__':
 		form.tabWidget.setEnabled(True)
 		form.progressBar.setValue(100)
 
+	# style
 
-		#style
-
-		# form.modList.setColumnHidden(3, True)
-		#styleEnd
-
-
+	# form.modList.setColumnHidden(3, True)
+	# styleEnd
 
 	# form.actionSettings.triggered.connect(settings.openSettingsWindow)
 	form.tabWidget.setEnabled(False)
@@ -73,37 +74,39 @@ if __name__ == '__main__':
 	form.timer.start(300)
 	form.timer.timeout.connect(onStartup)
 	form.progressBar.setValue(10)
-	# form.comboBox.setEnabled(True)
-	# form.comboBox.addItem("Latest")
-	# form.comboBox.addItems(["0.0.0"])
 	def openSite():
 		os.system(f'start https://vs.aytour.ru/')
 	form.uploadmods.clicked.connect(openSite)
+
 	def openCache():
 		os.system(f'start {settings.cacheDirPath}')
 	form.cacheFolder.clicked.connect(openCache)
+
 	def openDownload():
 		os.system(f'start https://vs.aytour.ru/download')
 	form.newVersion.clicked.connect(openDownload)
 
 	async def versionCheck():
+		form.newVersion.setText(version)
+		form.versionInfo.setText("Version: " + version)
 		response = requests.request("GET", updateCheckUrl, verify=False)
 		if response.ok:
-			if versionId >= int(response.text.split(":")[1]):
-				form.newVersion.setText(version)
-			else:
+			v = response.text
+			if versionId < int(v.split(":")[1]):
 				form.newVersion.setText("New Version Available")
 				form.newVersion.setEnabled(True)
+				form.versionInfo.setText("Version: " + version + "<br>New version: " + v.split(":")[0])
+			
 	asyncio.run(versionCheck())
 
-	#style
+	# style
 	style = "background-color: #E0E0E0;"
+	style2 = "background-color: #F0F0F0;"
 	form.modDesc.setStyleSheet(style)
 	form.modInfo.setStyleSheet(style)
 	form.color.setStyleSheet(style)
-	form.color2.setStyleSheet(style)
-	#styleEnd
-
+	form.color2.setStyleSheet(style2)
+	# styleEnd
 
 	window.show()
 	# x = True
@@ -117,7 +120,7 @@ if __name__ == '__main__':
 	# 	sleep(3)
 	# else:
 	app.exec_()
-	
+
 	modList.clearCache()
 	for file in os.listdir(settings.imageDirPath):
 		if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):

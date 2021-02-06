@@ -18,3 +18,7 @@ logo.png
 perfomance.py
 settings.ui
 restats
+venv
+dist
+build
+main.spec

@@ -5,12 +5,9 @@ import shutil
 
 base = 'Win32GUI'
 
-executables = [Executable("main.py", base=base,
-						  target_name="VintageModManager.exe", icon="logo.ico")]
-
+executables = [Executable("main.py", base=base, target_name="VintageModManager.exe", icon="logo.ico")]
 
 include_files = [".ui", "cross.png", "tick.png", "logo.ico"]
-
 
 zip_include_packages = []
 

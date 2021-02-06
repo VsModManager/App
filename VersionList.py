@@ -1,5 +1,7 @@
 from ModVersion import ModVersion
-class VersionList():
+
+
+class VersionList:
 	def __init__(self, data, latest, filelist):
 		# self.data = data
 		self.versions = {}

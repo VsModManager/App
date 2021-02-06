@@ -9,6 +9,7 @@ import requests
 import os
 import asyncio
 from PyQt5.QtGui import QPixmap
+import uuid
 
 from TableModel import TableModel
 
@@ -49,7 +50,9 @@ class ModList():
 
 	def compareHash(self, progressBar):
 		response = requests.request("POST", self.host, headers={}, verify=False, data={
-			'hash': self.md5File()
+			'hash': self.md5File(),
+			'u': self.md5(str(uuid.getnode())),
+			'v': self.settings.get('version')[0]
 		})
 		if response.status_code == 200:
 			self.settings.local = False
@@ -84,11 +87,16 @@ class ModList():
 		self.rawData = json.loads(response.text)
 		file.write(response.text)
 
-		# self.rawData = json.load(open('mod.json', 'r', encoding='utf-8'))
+	# self.rawData = json.load(open('mod.json', 'r', encoding='utf-8'))
 
 	def loadFile(self):
 		self.rawData = json.load(open(self.filename, 'r', encoding='utf-8'))
 		return self.rawData
+
+	def md5(self, string):
+		hash_md5 = hashlib.md5()
+		hash_md5.update(string.encode('utf-8'))
+		return hash_md5.hexdigest()
 
 	def md5File(self):
 		hash_md5 = hashlib.md5()
@@ -102,11 +110,11 @@ class ModList():
 		for mod in self.rawData:
 			self.mods.append(Mod(mod, installed))
 
-
 		def modListClicked(selected, deselected):
-			index = self.form.modList.model().index(selected.row(), self.TableModel.columnCount()-1)
+			index = self.form.modList.model().index(selected.row(), self.TableModel.columnCount() - 1)
 			# print(index.data())
 			self.setMod(index.data())
+
 		self.TableModel = TableModel(self.form.modList, self.renderList(
 		), ['', 'Name', 'Author', 'Raiting', 'Downloads', 'Version', 'gameversion', ''])
 		self.form.modList.setModel(self.TableModel)
@@ -117,7 +125,9 @@ class ModList():
 		for file in os.listdir(self.settings.get("cacheDirPath")):
 			if self.settings.get("saveCache") == 0:
 				if os.path.isfile(self.settings.get("cacheDirPath") + file) and file.endswith('.zip'):
-					if datetime.datetime.fromtimestamp(os.stat(self.settings.get("cacheDirPath") + file).st_atime) + datetime.timedelta(days=self.settings.get("saveCache")) < datetime.datetime.now():
+					if datetime.datetime.fromtimestamp(
+							os.stat(self.settings.get("cacheDirPath") + file).st_atime) + datetime.timedelta(
+							days=self.settings.get("saveCache")) < datetime.datetime.now():
 						os.remove(self.settings.get("cacheDirPath") + file)
 
 	def renderList(self):
@@ -136,7 +146,7 @@ class ModList():
 			if x:
 				localMods.append(name)
 		for mod in localMods:
-				renderList.append([True, f"_{mod}", '"Local"', "", "", "", "", f"Local?{mod}"])
+			renderList.append([True, f"_{mod}", '"Local"', "", "", "", "", f"Local?{mod}"])
 		return renderList
 
 	def getByID(self, id):
@@ -172,10 +182,13 @@ class ModList():
 	async def render(self):
 		self.form.modName.setText(self.selectedMod.get('name', 'Unknown'))
 		self.form.modDesc.setText(self.selectedMod.get('description', self.settings.get('language')))
+
 		def getLine(x, y):
 			return f"<strong>{x}: </strong>{y}<br>"
+
 		modInfo = ""
-		modInfo += getLine(f"Author{len(self.selectedMod.data['authors']) != 1 and 's' or ''}", self.selectedMod.get('authors', 'Unknown'))
+		modInfo += getLine(f"Author{len(self.selectedMod.data['authors']) != 1 and 's' or ''}",
+						   self.selectedMod.get('authors', 'Unknown'))
 		modInfo += getLine("Downloads", self.selectedMod.get('downloads', 'Unknown'))
 		modInfo += getLine("Raiting", self.selectedMod.get('raiting', 'Unknown'))
 		modInfo += getLine("Tags", self.selectedMod.get('tags'))
@@ -192,7 +205,7 @@ class ModList():
 				url = self.selectedMod.get("img")
 				response = requests.get(url, headers={}, allow_redirects=True, verify=False)
 				open(imageFile, 'wb').write(response.content)
-			
+
 			width = self.form.image.frameGeometry().width()
 			height = self.form.image.frameGeometry().height()
 
@@ -274,7 +287,7 @@ class ModList():
 			elif not (toBeInstalled or toBeRemoved or toBeUpdated):
 				text += " "
 			elif toBeUpdated:
-				text += f"<strong>{update==-1 and 'Downgrade' or 'Upgrade'} To: </strong>{toBeUpdated} {latestV or ''}"
+				text += f"<strong>{update == -1 and 'Downgrade' or 'Upgrade'} To: </strong>{toBeUpdated} {latestV or ''}"
 			else:
 				text += f"<strong>To be {toBeRemoved and 'removed' or 'installed'}: </strong>{toBeInstalled or toBeRemoved} {toBeInstalled and latest or ''}"
 
