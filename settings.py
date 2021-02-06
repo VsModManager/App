@@ -48,6 +48,9 @@ class settingsManager:
 					os.remove(self.cacheDirPath + file)
 		self.form.clearCache.clicked.connect(clearCache)
 
+	def __call__(self, a, b): 
+		print(a * b) 
+
 	def get(self, value):
 		if value in ["disableCache", "saveCache", "language"]:
 			return self.data[value]
@@ -57,5 +60,4 @@ class settingsManager:
 		self.data["disableCache"] = self.form.disableCache.isChecked()
 		self.data["saveCache"] = self.form.cacheDays.value()
 		json.dump(self.data, open(self.settingsFile, 'w'))
-		pass
 

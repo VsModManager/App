@@ -14,26 +14,21 @@ class lang:
 		self.cachePath = f"lang/"
 		self.filename = f"{self.lang}.json"
 		self.dict = {}
-		pass
 
 	def __call__(self, key):
 		return self._(key)
-		pass
 
 	def _(self, key):
 		return self.dict[key]
-		pass
 
 	def initialize(self):
 		if not os.path.isdir(self.cachePath):
 			os.makedirs(self.cachePath)
 		self.cachePath = Path(self.cachePath + self.filename)
 		if self.cachePath.is_file():
-			self.dict = json.loads(self.cachePath.read_text(encoding='utf-8'))
-			pass
+			self.dict = json.loads(self.cachePath.read_text(), encoding='utf-8')
 		else:
 			self.createCache()
-			pass
 
 	def createCache(self):
 		raw = self.listTerms()
