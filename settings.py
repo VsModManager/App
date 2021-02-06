@@ -48,8 +48,8 @@ class settingsManager:
 					os.remove(self.cacheDirPath + file)
 		self.form.clearCache.clicked.connect(clearCache)
 
-	def __call__(self, a, b): 
-		print(a * b) 
+	def __call__(self, value):
+		return self.get(value)
 
 	def get(self, value):
 		if value in ["disableCache", "saveCache", "language"]:

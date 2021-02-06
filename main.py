@@ -15,6 +15,7 @@ if __name__ == '__main__':
 	from ModList import ModList
 	# import logging
 	import requests
+	requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 	# os.remove('example.log')
 	# logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.WARN)
@@ -23,8 +24,8 @@ if __name__ == '__main__':
 	modDirPath = os.getenv('APPDATA') + "\\VintagestoryData\\Mods\\"
 	serverRequestUrl = "https://vs.aytour.ru/vs/get/mods"
 	updateCheckUrl = "https://archive.aytour.ru/vs/app/check"
-	version = "0.1.0-rc1"
-	versionId = 1
+	version = "0.1.0"
+	versionId = 2
 
 	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
 
@@ -73,7 +74,6 @@ if __name__ == '__main__':
 	form.timer.start(300)
 	form.timer.timeout.connect(onStartup)
 	form.progressBar.setValue(10)
-
 	def openSite():
 		os.system(f'start https://vs.aytour.ru/')
 	form.uploadmods.clicked.connect(openSite)
@@ -87,21 +87,25 @@ if __name__ == '__main__':
 	form.newVersion.clicked.connect(openDownload)
 
 	async def versionCheck():
+		form.newVersion.setText(version)
+		form.versionInfo.setText("Version: " + version)
 		response = requests.request("GET", updateCheckUrl, verify=False)
 		if response.ok:
-			if versionId >= int(response.text.split(":")[1]):
-				form.newVersion.setText(version)
-			else:
+			v = response.text
+			if versionId < int(v.split(":")[1]):
 				form.newVersion.setText("New Version Available")
 				form.newVersion.setEnabled(True)
+				form.versionInfo.setText("Version: " + version + "<br>New version: " + v.split(":")[0])
+			
 	asyncio.run(versionCheck())
 
 	# style
 	style = "background-color: #E0E0E0;"
+	style2 = "background-color: #F0F0F0;"
 	form.modDesc.setStyleSheet(style)
 	form.modInfo.setStyleSheet(style)
 	form.color.setStyleSheet(style)
-	form.color2.setStyleSheet(style)
+	form.color2.setStyleSheet(style2)
 	# styleEnd
 
 	window.show()
