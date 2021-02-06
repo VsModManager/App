@@ -34,7 +34,7 @@ class lang:
 		raw = self.listTerms()
 		for term in raw['result']['terms']:
 			self.dict[term['term']] = term['translation']['content']
-		self.cachePath.write_text(json.dumps(self.dict))
+		self.cachePath.write_text(json.dumps(self.dict), encoding='utf-8')
 
 	def setLang(self, lang):
 		self.lang = lang
