@@ -10,7 +10,7 @@ if __name__ == '__main__':
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication
 	from settings import settingsManager
-	import Poedit
+	# import Poedit
 
 	from ModList import ModList
 	# import logging
@@ -28,9 +28,9 @@ if __name__ == '__main__':
 
 	dataPath = os.getenv('APPDATA') + "\\VintagestoryModManagerData\\"
 
-	lang = Poedit.lang('f7712fd43da0c33880d64b13d3352784', 407521)
-	lang.cachePath = dataPath + '\\lang\\'
-	lang.initialize()
+	# lang = Poedit.lang('f7712fd43da0c33880d64b13d3352784', 407521)
+	# lang.cachePath = dataPath + '\\lang\\'
+	# lang.initialize()
 
 	Form, Window = uic.loadUiType(".ui")
 	app = QApplication([])
@@ -40,8 +40,8 @@ if __name__ == '__main__':
 	form.setupUi(window)
 
 	settings = settingsManager(form, dataPath, modDirPath)
+	settings.version = [version, versionId]
 	modList = None
-
 
 	def onStartup():
 		form.timer.stop()
@@ -61,7 +61,6 @@ if __name__ == '__main__':
 		form.tabWidget.setEnabled(True)
 		form.progressBar.setValue(100)
 
-
 	# style
 
 	# form.modList.setColumnHidden(3, True)
@@ -75,30 +74,17 @@ if __name__ == '__main__':
 	form.timer.timeout.connect(onStartup)
 	form.progressBar.setValue(10)
 
-
-	# form.comboBox.setEnabled(True)
-	# form.comboBox.addItem("Latest")
-	# form.comboBox.addItems(["0.0.0"])
 	def openSite():
 		os.system(f'start https://vs.aytour.ru/')
-
-
 	form.uploadmods.clicked.connect(openSite)
-
 
 	def openCache():
 		os.system(f'start {settings.cacheDirPath}')
-
-
 	form.cacheFolder.clicked.connect(openCache)
-
 
 	def openDownload():
 		os.system(f'start https://vs.aytour.ru/download')
-
-
 	form.newVersion.clicked.connect(openDownload)
-
 
 	async def versionCheck():
 		response = requests.request("GET", updateCheckUrl, verify=False)
@@ -108,8 +94,6 @@ if __name__ == '__main__':
 			else:
 				form.newVersion.setText("New Version Available")
 				form.newVersion.setEnabled(True)
-
-
 	asyncio.run(versionCheck())
 
 	# style

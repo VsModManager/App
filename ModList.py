@@ -9,6 +9,7 @@ import requests
 import os
 import asyncio
 from PyQt5.QtGui import QPixmap
+import uuid
 
 from TableModel import TableModel
 
@@ -49,7 +50,9 @@ class ModList():
 
 	def compareHash(self, progressBar):
 		response = requests.request("POST", self.host, headers={}, verify=False, data={
-			'hash': self.md5File()
+			'hash': self.md5File(),
+			'u': self.md5(str(uuid.getnode())),
+			'v': self.settings.get('version')[0]
 		})
 		if response.status_code == 200:
 			self.settings.local = False
@@ -89,6 +92,11 @@ class ModList():
 	def loadFile(self):
 		self.rawData = json.load(open(self.filename, 'r', encoding='utf-8'))
 		return self.rawData
+
+	def md5(self, string):
+		hash_md5 = hashlib.md5()
+		hash_md5.update(string.encode('utf-8'))
+		return hash_md5.hexdigest()
 
 	def md5File(self):
 		hash_md5 = hashlib.md5()
