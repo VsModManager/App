@@ -7,7 +7,7 @@
 /startup.py
 /startup.ui
 /window.py
-/__pycache__
+__pycache__
 Mod.zip
 taskScheduler.zip
 /.vscode
@@ -22,3 +22,4 @@ venv
 dist
 build
 main.spec
+test.py
