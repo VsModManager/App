@@ -17,6 +17,7 @@ from TableModel import TableModel
 class ModList():
 	def __init__(self, form, settings, host, filename='modListData.json'):
 		self.settings = settings
+		self.cache = self.settings.cache
 		self.presets = presets(form, settings)
 		self.filename = self.settings.get("modListDataFile")
 		self.form = form
@@ -46,6 +47,7 @@ class ModList():
 
 	def updateModList(self):
 		self.TableModel.setNewData(self.renderList())
+		self.cache.setSize()
 		self.form.modList.setModel(self.TableModel)
 
 	def compareHash(self, progressBar):
@@ -122,13 +124,8 @@ class ModList():
 		self.form.modList.selectRow(0)
 
 	def clearCache(self):
-		for file in os.listdir(self.settings.get("cacheDirPath")):
-			if self.settings.get("saveCache") == 0:
-				if os.path.isfile(self.settings.get("cacheDirPath") + file) and file.endswith('.zip'):
-					if datetime.datetime.fromtimestamp(
-							os.stat(self.settings.get("cacheDirPath") + file).st_atime) + datetime.timedelta(
-							days=self.settings.get("saveCache")) < datetime.datetime.now():
-						os.remove(self.settings.get("cacheDirPath") + file)
+		print("MODLIST: clearCache")
+		self.cache.cleanCache()
 
 	def renderList(self):
 		renderList = []

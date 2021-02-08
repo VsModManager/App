@@ -1,6 +1,8 @@
 from VersionList import VersionList
 from ModVersion import ModVersion
 
+import re
+
 
 class Mod:
 	def __init__(self, data, filelist, local=False):
@@ -15,7 +17,8 @@ class Mod:
 	# 	return self.get(name)
 	def __str__(self):
 		return self.data['name']
-
+	def __call__(self, value, other=None):
+		return self.get(value)
 	def get(self, name, other=None):
 		if name in ["installed", "toInstall", "toDelete", "toUpdate"]:
 			if isinstance(self.state[name], ModVersion):
@@ -43,15 +46,26 @@ class Mod:
 			if self.data["descriptions"][other] != None: return self.data["descriptions"][other]['shotDescription']
 			return self.data["descriptions"]['en']['shotDescription']
 		if name == "description":
-			if self.data["descriptions"][other] != None: return self.data["descriptions"][other]['description']
-			return self.data["descriptions"]['en']['description']
+			regex = r"(<img)(.*?)(\>)"
+			desc = ""
+			subst = "[images is not yet supported]"
+			if self.data["descriptions"][other] != None:
+				desc = self.data["descriptions"][other]['description']
+			else:
+				desc = self.data["descriptions"]['en']['description']
+			return re.sub(regex, subst, desc, flags = re.MULTILINE)
+			
 		if name == "author":
 			if self.data["authors"] == None or len(self.data["authors"]) == 0: return "Unknown"
 			return self.data["authors"][0]
 		if name == "authors":
 			if self.data["authors"] == None or len(self.data["authors"]) == 0: return "Unknown"
 			return ", ".join(self.data["authors"])
-
+		if name == "versionsToCombo":
+			v = []
+			for version in self.versions:
+				v.append(f"[{self.versionList.getVersion(version)('gameVersion')}] {version}")
+			return v
 		if name in self.data and self.data[name] != None:
 			return self.data[name]
 		return other

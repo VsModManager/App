@@ -10,6 +10,7 @@ if __name__ == '__main__':
 	from PyQt5.QtCore import QTimer
 	from PyQt5.QtWidgets import QApplication
 	from settings import settingsManager
+	from cacheController import cacheController
 	# import Poedit
 
 	from ModList import ModList
@@ -40,7 +41,8 @@ if __name__ == '__main__':
 	form = Form()
 	form.setupUi(window)
 
-	settings = settingsManager(form, dataPath, modDirPath)
+	cache = cacheController(form)
+	settings = settingsManager(form, cache, dataPath, modDirPath)
 	settings.version = [version, versionId]
 	modList = None
 
@@ -51,6 +53,7 @@ if __name__ == '__main__':
 
 		def textChanged():
 			modList.TableModel.setSearch(form.searchBox.text())
+		cache.setSize()
 
 		form.searchBox.textChanged.connect(textChanged)
 		form.comboBox.currentTextChanged.connect(modList.renderButtons)
@@ -94,6 +97,7 @@ if __name__ == '__main__':
 			v = response.text
 			if versionId < int(v.split(":")[1]):
 				form.newVersion.setText("New Version Available")
+				form.newVersion.setStyleSheet("background-color: #FF1010;")
 				form.newVersion.setEnabled(True)
 				form.versionInfo.setText("Version: " + version + "<br>New version: " + v.split(":")[0])
 			
@@ -121,7 +125,7 @@ if __name__ == '__main__':
 	# else:
 	app.exec_()
 
-	modList.clearCache()
+	cache.cleanCache()
 	for file in os.listdir(settings.imageDirPath):
 		if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):
 			os.remove(settings.imageDirPath + file)

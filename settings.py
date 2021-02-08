@@ -3,11 +3,14 @@ import os
 
 
 class settingsManager:
-	def __init__(self, form, dataPath, modDirPath):
+	def __init__(self, form, cache, dataPath, modDirPath):
 		self.modListDataFile = dataPath + 'modListData.json'
 		self.dataPath = dataPath
+		self.cache = cache
 		self.modDirPath = modDirPath
 		self.cacheDirPath = self.dataPath + "cache\\"
+		self.cache.setCachePath(self.cacheDirPath)
+		self.cache.setSettings(self)
 		self.imageDirPath = self.dataPath + "img\\"
 		self.settingsFile = self.dataPath + "settings.json"
 		self.form = form
@@ -42,11 +45,7 @@ class settingsManager:
 				self.form.cacheSizemultiplayer.setText("MB")
 		self.form.cacheSizemultiplayer.clicked.connect(change_type)
 
-		def clearCache():
-			for file in os.listdir(self.cacheDirPath):
-				if os.path.isfile(self.cacheDirPath + file) and file.endswith('.zip'):
-					os.remove(self.cacheDirPath + file)
-		self.form.clearCache.clicked.connect(clearCache)
+
 
 	def __call__(self, value):
 		return self.get(value)
