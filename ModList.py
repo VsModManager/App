@@ -47,16 +47,21 @@ class ModList():
 
 	def updateModList(self):
 		self.TableModel.setNewData(self.renderList())
-		self.cache.setSize()
 		self.form.modList.setModel(self.TableModel)
+		self.cache.cleanBySize()
+		self.cache.setSize()
 
 	def compareHash(self, progressBar):
-		response = requests.request("POST", self.host, headers={}, verify=False, data={
-			'hash': self.md5File(),
-			'u': self.md5(str(uuid.getnode())),
-			'v': self.settings.get('version')[0]
-		})
-		if response.status_code == 200:
+		response=""
+		try:
+			response = requests.request("POST", self.host, headers={}, verify=False, data={
+				'hash': self.md5File(),
+				'u': self.md5(str(uuid.getnode())),
+				'v': self.settings.get('version')[0]
+			})
+		except:
+			self.settings.local = True
+		if not self.settings.local and response.status_code == 200:
 			self.settings.local = False
 			if json.loads(response.text)['success']:
 				sleep(0.05)
@@ -83,11 +88,14 @@ class ModList():
 		return self
 
 	def downloadModList(self):
-		response = requests.request(
-			"GET", self.host, headers={}, data={}, verify=False)
-		file = open(self.filename, 'w+', encoding='utf-8')
-		self.rawData = json.loads(response.text)
-		file.write(response.text)
+		try:
+			response = requests.request(
+				"GET", self.host, headers={}, data={}, verify=False)
+			file = open(self.filename, 'w+', encoding='utf-8')
+			self.rawData = json.loads(response.text)
+			file.write(response.text)
+		except:
+			self.settings.local = True
 
 	# self.rawData = json.load(open('mod.json', 'r', encoding='utf-8'))
 
@@ -198,17 +206,20 @@ class ModList():
 			self.form.image.setText(" ")
 		else:
 			imageFile = self.settings.get("imageDirPath") + "m" + str(self.selectedMod.get('id'))
-			if not os.path.isfile(imageFile):
-				url = self.selectedMod.get("img")
-				response = requests.get(url, headers={}, allow_redirects=True, verify=False)
-				open(imageFile, 'wb').write(response.content)
+			try:
+				if not os.path.isfile(imageFile):
+					url = self.selectedMod.get("img")
+					response = requests.get(url, headers={}, allow_redirects=True, verify=False)
+					open(imageFile, 'wb').write(response.content)
 
-			width = self.form.image.frameGeometry().width()
-			height = self.form.image.frameGeometry().height()
+				width = self.form.image.frameGeometry().width()
+				height = self.form.image.frameGeometry().height()
 
-			pixmap = QPixmap(imageFile).scaled(width, height, 1)
-			# pixmap = pixmap
-			self.form.image.setPixmap(pixmap)
+				pixmap = QPixmap(imageFile).scaled(width, height, 1)
+				# pixmap = pixmap
+				self.form.image.setPixmap(pixmap)
+			except:
+				self.form.image.setText(" ")
 
 	def renderButtons(self):
 		if self._local:
@@ -280,7 +291,8 @@ class ModList():
 			text = f"<strong>Installed: </strong>{version or 'None'} {version and latest or ''}<br>"
 
 			if self.settings.local:
-				text += "unable connect to server"
+				self.form.deleteText.setStyleSheet("background-color: #FF0000;color:#000000;")
+				text += "<strong>unable connect to server</strong>"
 			elif not (toBeInstalled or toBeRemoved or toBeUpdated):
 				text += " "
 			elif toBeUpdated:

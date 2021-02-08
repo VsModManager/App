@@ -2,60 +2,73 @@ from cx_Freeze import setup, Executable
 import os
 import filecmp
 import shutil
+import PyInstaller.__main__
+
 
 base = 'Win32GUI'
 
-executables = [Executable("main.py", base=base, target_name="VintageModManager.exe", icon="logo.ico")]
+# executables = [Executable("main.py", base=base, target_name="VintageModManager.exe", icon="logo.ico")]
 
-include_files = [".ui", "cross.png", "tick.png", "logo.ico"]
+# include_files = [".ui", "cross.png", "tick.png", "logo.ico"]
 
-zip_include_packages = []
+# zip_include_packages = []
 
-options = {
-	'build_exe': {
-		'includes': zip_include_packages,
-		'include_files': include_files,
-		# 'zip_include_packages': includes,
-	},
-}
+# options = {
+# 	'build_exe': {
+# 		'includes': zip_include_packages,
+# 		'include_files': include_files,
+# 		# 'zip_include_packages': includes,
+# 	},
+# }
+PyInstaller.__main__.run([
+	'main.py',
+	'--onefile',
+	'--windowed',
+	'-n VintageModManager.exe',
+	'--add-data .ui;.ui',
+	'--add-data cross.png;cross.png',
+	'--add-data tick.png;tick.png',
+	'--add-data logo.ico;logo.ico',
+])
 
-if os.path.isdir(r".\build\exe.win-amd64-3.9"):
-	shutil.rmtree(r".\build\exe.win-amd64-3.9")
-setup(
-	name='main',
-	options=options,
-	version="0.1.0",
-	description='<any description>',
-	executables=executables
-)
 
-fileList = []
-removelist = [
-	r".\build\exe.win-amd64-3.9\lib\PyQt5\Qt\qml",
-	r".\build\exe.win-amd64-3.9\lib\chardet\cli",
-	r".\build\exe.win-amd64-3.9\lib\chardet\metatada",
-	r".\build\exe.win-amd64-3.9\lib\distutils\command",
-	r".\build\exe.win-amd64-3.9\lib\idna\uts46data.pyc",
-	r".\build\exe.win-amd64-3.9\lib\numpy\testing",
-	r".\build\exe.win-amd64-3.9\lib\numpy\__init__.pxd",
-	r".\build\exe.win-amd64-3.9\lib\numpy\__init__.cython-30.pxd",
-	r".\build\exe.win-amd64-3.9\lib\numpy\ma\testutils.pyc",
-	r".\build\exe.win-amd64-3.9\lib\pkg_resources\_vendor",
-	r".\build\exe.win-amd64-3.9\lib\pkg_resources",
-	r".\build\exe.win-amd64-3.9\lib\pydoc_data",
-	r".\build\exe.win-amd64-3.9\lib\setuptools\_distutils",
-	r".\build\exe.win-amd64-3.9\lib\setuptools\_vendor",
-]
-# C:\Users\Kirill\Desktop\CODE\PY\1\build\exe.win-amd64-3.9\lib\sqlite3
-for dirpath, dirs, files in os.walk("./build/"):
-	if dirpath.endswith("tests") or dirpath.endswith("src") or dirpath.endswith("test"):
-		removelist.append(dirpath)
+# if os.path.isdir(r".\build\exe.win-amd64-3.9"):
+# 	shutil.rmtree(r".\build\exe.win-amd64-3.9")
+# setup(
+# 	name='main',
+# 	options=options,
+# 	version="0.1.0",
+# 	description='<any description>',
+# 	executables=executables
+# )
 
-for key in removelist:
-	if os.path.isfile(key):
-		os.remove(key)
-	if os.path.isdir(key):
-		shutil.rmtree(key)
+# fileList = []
+# removelist = [
+# 	r".\build\exe.win-amd64-3.9\lib\PyQt5\Qt\qml",
+# 	r".\build\exe.win-amd64-3.9\lib\chardet\cli",
+# 	r".\build\exe.win-amd64-3.9\lib\chardet\metatada",
+# 	r".\build\exe.win-amd64-3.9\lib\distutils\command",
+# 	r".\build\exe.win-amd64-3.9\lib\idna\uts46data.pyc",
+# 	r".\build\exe.win-amd64-3.9\lib\numpy\testing",
+# 	r".\build\exe.win-amd64-3.9\lib\numpy\__init__.pxd",
+# 	r".\build\exe.win-amd64-3.9\lib\numpy\__init__.cython-30.pxd",
+# 	r".\build\exe.win-amd64-3.9\lib\numpy\ma\testutils.pyc",
+# 	r".\build\exe.win-amd64-3.9\lib\pkg_resources\_vendor",
+# 	r".\build\exe.win-amd64-3.9\lib\pkg_resources",
+# 	r".\build\exe.win-amd64-3.9\lib\pydoc_data",
+# 	r".\build\exe.win-amd64-3.9\lib\setuptools\_distutils",
+# 	r".\build\exe.win-amd64-3.9\lib\setuptools\_vendor",
+# ]
+# # C:\Users\Kirill\Desktop\CODE\PY\1\build\exe.win-amd64-3.9\lib\sqlite3
+# for dirpath, dirs, files in os.walk("./build/"):
+# 	if dirpath.endswith("tests") or dirpath.endswith("src") or dirpath.endswith("test"):
+# 		removelist.append(dirpath)
+
+# for key in removelist:
+# 	if os.path.isfile(key):
+# 		os.remove(key)
+# 	if os.path.isdir(key):
+# 		shutil.rmtree(key)
 
 # for dirpath, dirs, files in os.walk("./build/"):
 # 	for filename in files:

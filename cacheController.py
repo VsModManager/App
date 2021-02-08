@@ -44,11 +44,12 @@ class cacheController:
 		totalSize = 0
 		for file in os.listdir(self.cachePath):
 			if os.path.isfile(self.cachePath + file) and file.endswith('.zip'):
-				print(os.stat(self.cachePath + file))
 				totalSize += os.stat(self.cachePath + file).st_size
 		return totalSize
 	def setSize(self):
 		self.form.cacheSize.setText(self("totalSizeB"))
+
+
 
 	def clearCache(self, ignore=False):
 		for file in os.listdir(self.cachePath):
@@ -64,3 +65,33 @@ class cacheController:
 							os.stat(self.cachePath + file).st_atime) + datetime.timedelta(
 							days=self.settings.get("saveCache")) < datetime.datetime.now():
 						os.remove(self.cachePath + file)
+			
+		self.cleanBySize()
+
+	def cleanImages(self):
+		if not settings("localPics"):
+			for file in os.listdir(settings.imageDirPath):
+				if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):
+					os.remove(settings.imageDirPath + file)
+		else:
+			for file in os.listdir(settings.imageDirPath):
+				if os.path.isfile(settings.imageDirPath + file) and file.startswith('m'):
+					if datetime.datetime.fromtimestamp(os.stat(self.cachePath + file).st_atime) + datetime.timedelta(
+							days=5) < datetime.datetime.now():
+						os.remove(settings.imageDirPath + file)
+	def cleanBySize(self):
+		if self.settings("cacheLimitRaw") != 0:
+			totalSize = self.getSize()
+			if self.settings("cacheLimit") < totalSize:
+				files = []
+				for file in os.listdir(self.cachePath):
+					if os.path.isfile(self.cachePath + file) and file.endswith('.zip'):
+						files.append((file, os.stat(self.cachePath + file).st_atime, os.stat(self.cachePath + file).st_size))
+				def _sort(file):
+					return file[1]
+				files.sort(key=_sort)
+				i = 0
+				while self.settings("cacheLimit") < totalSize:
+					os.remove(self.cachePath + files[i][0])
+					totalSize -= files[i][2]
+					i+=1
