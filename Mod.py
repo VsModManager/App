@@ -83,7 +83,18 @@ class Mod:
 		return self.versionList.get('lastVersion')
 
 	def render(self):
-		installed = self.state['installed'] and True or False
+		state = ""
+		if self.state["installed"]:
+			# state = True
+			state += "I"
+			if self.state["installed"] != self.getLastVersion():
+				state += "U"
+		if self.state["toUpdate"]:
+			state += "E"
+		if self.state["toInstall"]:
+			state += "+"
+		if self.state["toDelete"]:
+			state += "-"
 		name = str(self)
 		author = self.formatString(self.get("author"), 14)
 		downloads = self.data['downloads'] or "----"
@@ -91,7 +102,7 @@ class Mod:
 		gameVersion = self.getVersion(version).get('gameVersion') or "Unknown"
 		raiting = self.get("raiting", True) or "--.--%"
 		id = self.data['id']
-		return [installed, name, author, raiting, downloads, version, gameVersion, id]
+		return [state, name, author, raiting, downloads, version, gameVersion, id]
 
 	def formatString(self, string, limit):
 		try:

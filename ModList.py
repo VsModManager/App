@@ -151,7 +151,7 @@ class ModList():
 			if x:
 				localMods.append(name)
 		for mod in localMods:
-			renderList.append([True, f"_{mod}", '"Local"', "", "", "", "", f"Local?{mod}"])
+			renderList.append(["L", f"_{mod}", '"Local"', "", "", "", "", f"Local?{mod}"])
 		return renderList
 
 	def getByID(self, id):

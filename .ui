@@ -484,6 +484,9 @@
           <height>22</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>0 = Infinity</string>
+        </property>
         <property name="suffix">
          <string> days</string>
         </property>
@@ -553,6 +556,9 @@
           <width>45</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="toolTip">
+         <string>0 = Infinity</string>
         </property>
         <property name="maximum">
          <number>1024</number>
@@ -659,6 +665,9 @@
         <height>661</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Planned</string>
+      </property>
       <property name="title">
        <string>Presets</string>
       </property>
@@ -722,6 +731,9 @@
       <width>121</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>Current version</string>
     </property>
     <property name="text">
      <string/>

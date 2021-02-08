@@ -43,7 +43,7 @@ class TableModel(QtCore.QAbstractTableModel):
 			# value = self._data[index.row()][index.column()]
 			if self._header[index.column()] == "Downloads":
 				return Qt.AlignVCenter + Qt.AlignRight
-			elif index.column() > 1:
+			elif index.column() != 1:
 				return Qt.AlignVCenter + Qt.AlignHCenter
 			return Qt.AlignVCenter
 
