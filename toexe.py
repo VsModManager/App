@@ -2,6 +2,8 @@ from cx_Freeze import setup, Executable
 import os
 import filecmp
 import shutil
+# import PyInstaller.__main__
+
 
 base = 'Win32GUI'
 
@@ -18,6 +20,16 @@ options = {
 		# 'zip_include_packages': includes,
 	},
 }
+# PyInstaller.__main__.run([
+# 	'main.py',
+# 	# '--onefile',
+# 	'--windowed',
+# 	'--name=VintageModManager.exe',
+# 	'--icon=logo.ico',
+# 	# '-d=noarchive',
+# 	# '-p data',
+# ])
+
 
 if os.path.isdir(r".\build\exe.win-amd64-3.9"):
 	shutil.rmtree(r".\build\exe.win-amd64-3.9")

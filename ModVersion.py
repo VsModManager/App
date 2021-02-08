@@ -12,5 +12,8 @@ class ModVersion():
 	def __str__(self):
 		return self.data['version']
 
+	def __call__(self, value):
+		return self.get(value)
+
 	def get(self, value):
 		return self.data[value]
