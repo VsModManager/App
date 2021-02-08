@@ -60,16 +60,16 @@ class settingsManager:
 		self.form.cacheSizemultiplayer.clicked.connect(change_type)
 		
 		if self("lastVersion") < versionId:
-			self.migrate(self("lastVersion"))
+			self.migrate(self("lastVersion"), versionId)
 
-	def migrate(self, version):
+	def migrate(self, version, versionId):
 		if version <= 3:
 			if os.path.isdir(self.dataPath + "img\\"):
 				try:
 					shutil.rmtree(self.dataPath + "img\\")
 				except:
 					pass
-		self.apply(self("lastVersion"))
+		self.apply(versionId)
 
 	def __call__(self, value):
 		return self.get(value)
