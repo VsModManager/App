@@ -1,0 +1,1 @@
+[[0, "id", "INTEGER", 0, null, 1], [1, "mod", "", 0, null, 0], [2, "version", "VARCHAR (50)", 0, null, 0], [3, "filename", "VARCHAR (100)", 0, null, 0], [4, "gameVersion", "VARCHAR (50)", 0, null, 0], [5, "modinfo", "TEXT", 0, null, 0], [6, "changelog", "TEXT", 0, null, 0], [7, "dependencies", "TEXT", 0, null, 0], [8, "date_create", "BIGINT (20)", 0, null, 0]]

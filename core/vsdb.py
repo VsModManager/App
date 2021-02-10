@@ -50,12 +50,51 @@ class manager:
 		pass
 
 	def getObject(self, name, criteria=None):
-		moduleName, dot, className = name.rpartition('.')
+		moduleName, dot, className = f'core.{name}.{name}'.rpartition('.')
 		module = importlib.import_module(moduleName)
 		klass = getattr(module, className)
 		_ = klass(self, criteria)
 		if criteria:
-			if not _.isNew:
+			if _.isNew > 0:
 				return False
 		return _
+		pass
+
+	def getIterator(self, name: str, criteria=None):
+		return iterator(self, name, criteria)
+		pass
+
+
+class iterator:
+	def __init__(self, _manager: manager, name: str, criteria=None):
+		self.manager = _manager
+		moduleName, dot, className = f'core.{name}.{name}'.rpartition('.')
+		self.module = importlib.import_module(moduleName)
+		self.klass = getattr(self.module, className)
+		_ = self.klass(self.manager, criteria)
+		self.table = _.table
+		self.primaryKey = _.primaryKey
+		if criteria:
+			self.where = _.criteria2where(criteria)
+		else:
+			self.where = ''
+		self.cursor = self.manager.db.cursor()
+
+	def orderBy(self):
+		pass
+
+	def __iter__(self):
+		self.a = 0
+		self.cursor.execute(f"SELECT {self.primaryKey} FROM {self.table} {self.where}")
+		self.iter = self.cursor.fetchall()
+		return self
+		pass
+
+	def __next__(self):
+		if len(self.iter) > self.a:
+			_ = self.klass(self.manager, {self.primaryKey: self.iter[self.a][0]})
+			self.a += 1
+			return _
+		else:
+			raise StopIteration
 		pass

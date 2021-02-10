@@ -6,7 +6,8 @@ class version(model.model):
 
 	def __init__(self, manager, criteria=None):
 		super().__init__()
-		self.criteria = criteria
 		self.manager = manager
-
-	pass
+		self.process()
+		if criteria:
+			self.criteria = self.criteria2where(criteria)
+			self.initialize()
